@@ -65,24 +65,24 @@ end
 function SaveManager:Load(nf)
     nf = nf or self.ConfigFile
     local filePath = self.ConfigFolder .. "/" .. nf
-    if not isfile(filePath) then
-        return false
-    end
-    local success, result = pcall(function()
-        local content = readfile(filePath)
-        return HttpService:JSONDecode(content)
-    end)
-    if success and result then
-        for flag, value in pairs(result) do
-            if Flags[flag] ~= nil then
+    if not isfile(filePath) then return false end
+    local success, result = pcall(function() return HttpService:JSONDecode(readfile(filePath)) end)
+    if not success or type(result) ~= "table" then return false end
+    for flag, value in pairs(result) do
+        if Flags[flag] ~= nil then
+            if type(value) == "table" and type(Flags[flag]) == "table" then
+                for k, v in pairs(value) do
+                    Flags[flag][k] = v
+                    self.Flags[flag][k] = v
+                end
+            else
                 Flags[flag] = value
                 self.Flags[flag] = value
             end
         end
-        print("Settings loaded")
-        return true
     end
-    return false
+    print("Settings loaded")
+    return true
 end
 
 function SaveManager:Delete(nf)
