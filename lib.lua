@@ -2810,45 +2810,12 @@ function redzlib:MakeWindow(Configs)
 		end
 		return Tab
 	end
-	function Tab:AddSaveSettings()
-		self:AddLabel({
-			Name = "Auto-Save Settings",
-			Description = "Settings are saved automatically"
-		})
-		self:AddToggle({
-			Name = "Enable Auto-Save",
-			Description = "Automatically save settings on change",
-			Default = true,
-		Callback = function(enabled)
-            SaveManager:Toggle(enabled)
-        end})
-		self:AddButton({
-			Name = "Save Now",
-			Description = "Manually save current settings",
-		Callback = function()
-			if SaveManager:Save() then print("✓ Settings saved manually") end
-        end})
-		self:AddButton({
-			Name = "Reload Settings",
-			Description = "Reload saved settings",
-        Callback = function()
-            if SaveManager:Load() then print("✓ Settings reloaded") end
-        end})
-		self:AddButton({
-			Name = "Reset to Default",
-			Description = "Delete saved settings",
-        Callback = function()
-            if SaveManager:Delete() then SaveManager.Flags = {} Flags = {} print("✓ Settings reset") end
-        end})
-		self:AddLabel({Name = "─────────────────"})
-    end
 
 	CloseButton.Activated:Connect(Window.CloseBtn)
 	MinimizeButton.Activated:Connect(Window.MinimizeBtn)
-	SaveManager:Init()
 	return Window
 end
-
+SaveManager:Init()
 return redzlib
 
 
