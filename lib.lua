@@ -9,11 +9,11 @@ local Player = Players.LocalPlayer
 local PlayerMouse = Player:GetMouse()
 
 local SaveManager = {
-    ConfigFolder = "YourUILibConfigs",
-    ConfigFile = "autosave.json",
+    ConfigFolder = "3TOC/" .. Players.LocalPlayer.Name,
+    ConfigFile = "Settings.json",
     Flags = {},
-    AutoSaveEnabled = true, 
-    SaveDelay = 0.2, 
+    AutoSaveEnabled = true,
+    SaveDelay = 1,
     LastChange = 0,
     SaveConnection = nil,
     Initialized = false
