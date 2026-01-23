@@ -19,6 +19,9 @@ local SaveManager = {
     Initialized = false
 }
 
+Flags = Flags or {}
+SaveManager.Flags = Flags
+
 function SaveManager:Init()
     if self.Initialized then return end
     self.Initialized = true
