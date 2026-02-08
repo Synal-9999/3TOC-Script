@@ -22,6 +22,26 @@ local SaveManager = {
 Flags = Flags or {}
 SaveManager.Flags = Flags
 
+local GetFlag, SetFlag, CheckFlag do
+	GetFlag = function(Flag)
+        return SaveManager.Flags[Flag] or Flags[Flag]
+    end
+
+    CheckFlag = function(Flag)
+        return Flag and Flag ~= "" and SaveManager.Flags[Flag] ~= nil
+    end
+
+	SetFlag = function(Flag, Value)
+        if Flag and Flag ~= "" then
+            local oldValue = Flags[Flag]
+            Flags[Flag] = Value
+            SaveManager.Flags[Flag] = Value
+            if oldValue ~= Value then
+                SaveManager:MarkChanged()
+            end
+        end
+    end
+    
 function SaveManager:Init()
     if self.Initialized then return end
     self.Initialized = true
@@ -1165,25 +1185,6 @@ local Connections, Connection = {}, redzlib.Connection do
 	NewConnectionList({"FlagsChanged", "ThemeChanged", "FileSaved", "ThemeChanging", "OptionAdded"})
 end
 
-local GetFlag, SetFlag, CheckFlag do
-	GetFlag = function(Flag)
-        return SaveManager.Flags[Flag] or Flags[Flag]
-    end
-
-    CheckFlag = function(Flag)
-        return Flag and Flag ~= "" and SaveManager.Flags[Flag] ~= nil
-    end
-
-	SetFlag = function(Flag, Value)
-        if Flag and Flag ~= "" then
-            local oldValue = Flags[Flag]
-            Flags[Flag] = Value
-            SaveManager.Flags[Flag] = Value
-            if oldValue ~= Value then
-                SaveManager:MarkChanged()
-            end
-        end
-    end
 	
 	local db
 	Connection.FlagsChanged:Connect(function(Flag, Value)
