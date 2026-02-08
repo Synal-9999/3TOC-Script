@@ -22,26 +22,6 @@ local SaveManager = {
 Flags = Flags or {}
 SaveManager.Flags = Flags
 
-local GetFlag, SetFlag, CheckFlag do
-	GetFlag = function(Flag)
-        return SaveManager.Flags[Flag] or Flags[Flag]
-    end
-
-    CheckFlag = function(Flag)
-        return Flag and Flag ~= "" and SaveManager.Flags[Flag] ~= nil
-    end
-
-	SetFlag = function(Flag, Value)
-        if Flag and Flag ~= "" then
-            local oldValue = Flags[Flag]
-            Flags[Flag] = Value
-            SaveManager.Flags[Flag] = Value
-            if oldValue ~= Value then
-                SaveManager:MarkChanged()
-            end
-        end
-    end
-    
 function SaveManager:Init()
     if self.Initialized then return end
     self.Initialized = true
@@ -83,27 +63,6 @@ function SaveManager:Save(nf)
     end)
     if success then end
     return success
-end
-
-function SaveManager:Load(nf)
-    nf = nf or self.ConfigFile
-    local filePath = self.ConfigFolder .. "/" .. nf
-    if not isfile(filePath) then return false end
-
-    local success,result = pcall(function()
-        return HttpService:JSONDecode(readfile(filePath))
-    end)
-
-    if not success or type(result) ~= "table" then
-        warn("Failed to load or parse config")
-        return false
-    end
-    for flag,value in pairs(result) do
-        SetFlag(flag,value)
-    end
-
-    print("Settings loaded")
-    return true
 end
 
 function SaveManager:Delete(nf)
@@ -1185,6 +1144,25 @@ local Connections, Connection = {}, redzlib.Connection do
 	NewConnectionList({"FlagsChanged", "ThemeChanged", "FileSaved", "ThemeChanging", "OptionAdded"})
 end
 
+local GetFlag, SetFlag, CheckFlag do
+	GetFlag = function(Flag)
+        return SaveManager.Flags[Flag] or Flags[Flag]
+    end
+
+    CheckFlag = function(Flag)
+        return Flag and Flag ~= "" and SaveManager.Flags[Flag] ~= nil
+    end
+
+	SetFlag = function(Flag, Value)
+        if Flag and Flag ~= "" then
+            local oldValue = Flags[Flag]
+            Flags[Flag] = Value
+            SaveManager.Flags[Flag] = Value
+            if oldValue ~= Value then
+                SaveManager:MarkChanged()
+            end
+        end
+    end
 	
 	local db
 	Connection.FlagsChanged:Connect(function(Flag, Value)
@@ -1206,6 +1184,27 @@ end
 			end
 		end
 	end)
+end
+
+function SaveManager:Load(nf)
+    nf = nf or self.ConfigFile
+    local filePath = self.ConfigFolder .. "/" .. nf
+    if not isfile(filePath) then return false end
+
+    local success,result = pcall(function()
+        return HttpService:JSONDecode(readfile(filePath))
+    end)
+
+    if not success or type(result) ~= "table" then
+        warn("Failed to load or parse config")
+        return false
+    end
+    for flag,value in pairs(result) do
+        SetFlag(flag,value)
+    end
+
+    print("Settings loaded")
+    return true
 end
 
 local ScreenGui = Create("ScreenGui", CoreGui, {
