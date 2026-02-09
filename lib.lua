@@ -2684,7 +2684,16 @@ function redzlib:MakeWindow(Configs)
                    TextBoxInput.Text = Text
                 end
             end
-            TextBoxInput.FocusLost:Connect(Input)
+            local last = 0
+            TextBoxInput:GetPropertyChangedSignal("Text"):Connect(function()
+                last = tick()
+                local t = last
+                task.delay(0.2,function()
+                    if t == last then
+                        Input(TextBoxInput.Text)
+                    end
+                end)
+            end)
             TextBoxInput.FocusLost:Connect(function()
                 CreateTween({Pencil, "ImageColor3", Color3.fromRGB(255, 255, 255), 0.2})
             end)
