@@ -2673,6 +2673,9 @@ function redzlib:MakeWindow(Configs)
   		    local TextBoxInput = InsertTheme(Create("TextBox", SelectedFrame, {Size = UDim2.new(0.85, 0, 0.85, 0), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0.5, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextScaled = true, TextColor3 = Theme["Color Text"], ClearTextOnFocus = TClearText, PlaceholderText = TPlaceholderText, Text = TDefault }), "Text")
   		    local Pencil = Create("ImageLabel", SelectedFrame, {Size = UDim2.new(0, 12, 0, 12), Position = UDim2.new(0, -5, 0.5), AnchorPoint = Vector2.new(1, 0.5), Image = "rbxassetid://15637081879", BackgroundTransparency = 1})
   		    local TextBox = {}
+  		    SetFlag(Flag, TextBoxInput.Text)
+  		    Funcs:FireCallback(Callback, TextBoxInput.Text)
+  		    TextBoxInput.Text = TextBoxInput.Text
   		    local function Input()
     		    local Text = TextBoxInput.Text
     		    if Text:gsub(" ", ""):len() > 0 then
@@ -2684,16 +2687,7 @@ function redzlib:MakeWindow(Configs)
                    TextBoxInput.Text = Text
                 end
             end
-            local last = 0
-            TextBoxInput:GetPropertyChangedSignal("Text"):Connect(function()
-                last = tick()
-                local t = last
-                task.delay(0.2,function()
-                    if t == last then
-                        Input(TextBoxInput.Text)
-                    end
-                end)
-            end)
+            TextBoxInput.FocusLost:Connect(Input)
             TextBoxInput.FocusLost:Connect(function()
                 CreateTween({Pencil, "ImageColor3", Color3.fromRGB(255, 255, 255), 0.2})
             end)
