@@ -65,6 +65,37 @@ function SaveManager:Save(nf)
     return success
 end
 
+function SaveManager:Load(nf)
+    nf = nf or self.ConfigFile
+    local filePath = self.ConfigFolder .. "/" .. nf
+    if not isfile(filePath) then return false end
+    local success, result = pcall(function() 
+        return HttpService:JSONDecode(readfile(filePath)) 
+    end)  
+    if not success or type(result) ~= "table" then 
+        warn("Failed to load or parse config")
+        return false 
+    end
+    for flag, value in pairs(result) do
+        if Flags[flag] == nil then
+            Flags[flag] = value
+            self.Flags[flag] = value
+        else
+            if type(value) == "table" and type(Flags[flag]) == "table" then
+                for k, v in pairs(value) do
+                    Flags[flag][k] = v
+                    self.Flags[flag][k] = v
+                end
+            else
+                Flags[flag] = value
+                self.Flags[flag] = value
+            end
+        end
+    end
+    print("Settings loaded")
+    return true
+end
+
 function SaveManager:Delete(nf)
     nf = nf or self.ConfigFile
     local fp = self.ConfigFolder .. "/" .. nf
@@ -1184,27 +1215,6 @@ local GetFlag, SetFlag, CheckFlag do
 			end
 		end
 	end)
-end
-
-function SaveManager:Load(nf)
-    nf = nf or self.ConfigFile
-    local filePath = self.ConfigFolder .. "/" .. nf
-    if not isfile(filePath) then return false end
-
-    local success,result = pcall(function()
-        return HttpService:JSONDecode(readfile(filePath))
-    end)
-
-    if not success or type(result) ~= "table" then
-        warn("Failed to load or parse config")
-        return false
-    end
-    for flag,value in pairs(result) do
-        SetFlag(flag,value)
-    end
-
-    print("Settings loaded")
-    return true
 end
 
 local ScreenGui = Create("ScreenGui", CoreGui, {
@@ -2685,6 +2695,7 @@ function redzlib:MakeWindow(Configs)
                  if type(Val) == "string" then
                      TextBoxInput.Text = Val
                      SetFlag(Flag, Val)
+                     Funcs:FireCallback(Callback, Val)
                  elseif type(Val) == "function" then
                      Callback = Val
                  end
