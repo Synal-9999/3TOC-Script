@@ -38,11 +38,14 @@ end
 
 function SaveManager:StartAutoSave()
     if self.SaveConnection then return end
-    self.SaveConnection = RunService.Heartbeat:Connect(function()
-        if not self.AutoSaveEnabled then return end
-        if tick() - self.LastChange >= self.SaveDelay and self.LastChange > 0 then
-            self:Save()
-            self.LastChange = 0
+    self.SaveConnection = task.spawn(function()
+        while true do
+            task.wait(self.SaveDelay)
+            if not self.AutoSaveEnabled then continue end
+            if self.LastChange > 0 then
+                self:Save()
+                self.LastChange = 0
+            end
         end
     end)
 end
